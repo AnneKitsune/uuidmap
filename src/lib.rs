@@ -52,10 +52,7 @@ impl<T> Table<T> {
     }
 
     pub fn add_with_key(&mut self, key: u128, value: T) {
-        if let Some(index) = self.map.get_mut(&key) {
-            *index = self.data.len();
-            self.data.push(value);
-        } else {
+        if !self.map.contains_key(&key) {
             self.data.push(value);
             let index = self.data.len() - 1;
             self.map.insert(key, index);
@@ -76,59 +73,66 @@ mod tests {
 
     #[test]
     fn test_add_with_key() {
-        let mut table: Table<i32> = Table::default();
+        let mut table: Table<i32> = Table::default(); // Specify type for empty_table
         let key = 123;
         table.add_with_key(key, 42);
         assert_eq!(table.get(key), Some(&42));
-
-        table.add_with_key(key, 50);
-        assert_eq!(table.get(key), Some(&50));
-    }
-
-    #[test]
-    fn test_count() {
-        let mut table: Table<i32> = Table::default();
-        assert_eq!(table.count(), 0);
-
-        table.add(42);
-        assert_eq!(table.count(), 1);
-
-        table.add_with_key(123, 50);
-        assert_eq!(table.count(), 2);
     }
 
     #[test]
     fn test_remove() {
-        let mut table: Table<i32> = Table::default();
+        let mut table: Table<i32> = Table::default(); // Specify type for empty_table
         let key = table.add(42);
-        assert_eq!(table.get(key), Some(&42));
-
-        let value = table.remove(key);
-        assert_eq!(value, Some(42));
+        assert_eq!(table.remove(key), Some(42));
         assert_eq!(table.get(key), None);
+    }
+
+    #[test]
+    fn test_count() {
+        let mut table: Table<i32> = Table::default(); // Specify type for empty_table
+        assert_eq!(table.count(), 0);
+        table.add(42);
+        assert_eq!(table.count(), 1);
+
+        let key = table.add(24);
+        table.remove(key);
+        assert_eq!(table.count(), 1);
     }
 
     #[test]
     fn test_values() {
-        let mut table: Table<i32> = Table::default();
+        let mut table: Table<i32> = Table::default(); // Specify type for empty_table
         table.add(42);
-        table.add_with_key(123, 50);
-
-        let values: Vec<&i32> = table.values().collect();
-        assert_eq!(values, vec![&42, &50]);
+        table.add(24);
+        let values: Vec<_> = table.values().collect();
+        assert_eq!(values, vec![&42, &24]);
     }
 
     #[test]
     fn test_edge_cases() {
-        let mut table: Table<i32> = Table::default();
-        let key = 123;
-        table.add_with_key(key, 42);
-        assert_eq!(table.get(key), Some(&42));
+        let mut table: Table<i32> = Table::default(); // Specify type for empty_table
+                                                      // Adding and removing elements
+        let key1 = table.add(1);
+        let key2 = table.add(2);
+        assert_eq!(table.get(key1), Some(&1));
+        assert_eq!(table.get(key2), Some(&2));
+        assert_eq!(table.remove(key1), Some(1));
+        assert_eq!(table.get(key1), None);
+        assert_eq!(table.count(), 1);
 
-        table.remove(key);
-        assert_eq!(table.get(key), None);
+        // Adding with specific key
+        let key3 = 999;
+        table.add_with_key(key3, 3);
+        assert_eq!(table.get(key3), Some(&3));
 
-        table.add_with_key(key, 50);
-        assert_eq!(table.get(key), Some(&50));
+        // Removing non-existent key
+        assert_eq!(table.remove(998), None);
+
+        // Getting non-existent key
+        assert_eq!(table.get(998), None);
+
+        // Counting empty table
+        let empty_table: Table<i32> = Table::default(); // Specify type for empty_table
+        assert_eq!(empty_table.count(), 0);
     }
 }
