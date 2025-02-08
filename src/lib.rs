@@ -1,4 +1,7 @@
 use nohash_hasher::BuildNoHashHasher;
+use std::collections::HashMap; // Added import for HashMap
+use rand::Rng; // Added import for Rng trait
+
 // Uuid -> vector idx
 type UuidMap = HashMap<u128, usize, BuildNoHashHasher<u128>>;
 
@@ -50,9 +53,9 @@ impl<T> Table<T> {
     }
 
     pub fn add(&mut self, value: T) -> u128 {
-        let key = rand::random();
+        let key = rand::thread_rng().gen(); // Use thread_rng to generate a random key
         while self.map.contains_key(&key) {
-            key = rand::random();
+            key = rand::thread_rng().gen();
         }
         self.add_with_key(key, value);
         key
@@ -73,14 +76,14 @@ mod tests {
 
     #[test]
     fn test_add_and_get() {
-        let mut table = Table::new();
+        let mut table: Table<i32> = Table::new(); // Specify type for empty_table
         let key = table.add(42);
         assert_eq!(table.get(key), Some(&42));
     }
 
     #[test]
     fn test_add_with_key() {
-        let mut table = Table::new();
+        let mut table: Table<i32> = Table::new(); // Specify type for empty_table
         let key = 123;
         table.add_with_key(key, 42);
         assert_eq!(table.get(key), Some(&42));
@@ -88,7 +91,7 @@ mod tests {
 
     #[test]
     fn test_remove() {
-        let mut table = Table::new();
+        let mut table: Table<i32> = Table::new(); // Specify type for empty_table
         let key = table.add(42);
         assert_eq!(table.remove(key), Some(42));
         assert_eq!(table.get(key), None);
@@ -96,7 +99,7 @@ mod tests {
 
     #[test]
     fn test_count() {
-        let mut table = Table::new();
+        let mut table: Table<i32> = Table::new(); // Specify type for empty_table
         assert_eq!(table.count(), 0);
         table.add(42);
         assert_eq!(table.count(), 1);
@@ -106,7 +109,7 @@ mod tests {
 
     #[test]
     fn test_values() {
-        let mut table = Table::new();
+        let mut table: Table<i32> = Table::new(); // Specify type for empty_table
         table.add(42);
         table.add(24);
         let values: Vec<_> = table.values().collect();
@@ -115,7 +118,7 @@ mod tests {
 
     #[test]
     fn test_edge_cases() {
-        let mut table = Table::new();
+        let mut table: Table<i32> = Table::new(); // Specify type for empty_table
         // Adding and removing elements
         let key1 = table.add(1);
         let key2 = table.add(2);
@@ -137,7 +140,7 @@ mod tests {
         assert_eq!(table.get(998), None);
 
         // Counting empty table
-        let mut empty_table = Table::new();
+        let mut empty_table: Table<i32> = Table::new(); // Specify type for empty_table
         assert_eq!(empty_table.count(), 0);
     }
 }
