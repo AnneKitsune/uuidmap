@@ -1,10 +1,11 @@
 [package]
 name = "uuidmap"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2021"
 description = "An ArrayHashMap implementation specialized for using a uuid (u128) as the key."
 license = "AGPL-3.0-or-later"
 repository = "https://github.com/AnneKitsune/uuidmap"
+documentation = "https://docs.rs/uuidmap"
 
 [dependencies]
 rand = "0.9"
