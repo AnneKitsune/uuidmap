@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 description = "An ArrayHashMap implementation specialized for using a uuid (u128) as the key."
 license = "AGPL-3.0-or-later"
+repository = "https://github.com/AnneKitsune/uuidmap"
 
 [dependencies]
 rand = "0.9"
