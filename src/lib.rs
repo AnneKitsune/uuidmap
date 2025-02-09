@@ -34,6 +34,8 @@ use fxhash::FxHashMap;
 use rand::Rng;
 
 // TODO evaluate performance degradation due to cpu cache misses when doing join_benchmark with random insertion order.
+// TODO reword readme.
+// TODO bump to 1.0.0 once I'm done with the other todos + have used this in other projects.
 
 /// See crate level documentation.
 #[derive(Debug, Clone)]
