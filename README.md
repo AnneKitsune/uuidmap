@@ -25,3 +25,10 @@ The tables are not thread-safe, by design.
 You should be using another crate to orchestrate safe table access (no double mutable access, no reads during writes.)
 
 For game engines, I recommend [world_dispatcher](https://github.com/AnneKitsune/world_dispatcher), which I made for this purpose.
+
+### Complexities
+
+- Iterating: O(n). raw `Vec<T>`.
+- Inserting: O(n) amortized. 2x vec insert + 1x hashmap insert.
+- Deleting: O(1). two swap remove. one hashmap get.
+- Get element by key: O(1). hash of u128 + array access.
