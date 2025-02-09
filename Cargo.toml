@@ -1,6 +1,6 @@
 [package]
 name = "uuidmap"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "An ArrayHashMap implementation specialized for using a uuid (u128) as the key."
 license = "AGPL-3.0-or-later"
