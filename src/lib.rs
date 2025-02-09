@@ -1,21 +1,20 @@
-use rand::Rng;
-use std::collections::HashMap;
 use fxhash::FxHashMap;
+use rand::Rng;
 
 #[derive(Debug, Clone)]
 pub struct Table<T> {
     // Contains a map of uuid to data vector index.
-    //map: HashMap<u128, usize>,
     map: FxHashMap<u128, usize>,
     data: Vec<T>,
+    reverse: Vec<u128>,
 }
 
 impl<T> Default for Table<T> {
     fn default() -> Self {
         Self {
-            //map: HashMap::<u128, usize>::default(),
             map: FxHashMap::<u128, usize>::default(),
             data: vec![],
+            reverse: vec![],
         }
     }
 }
@@ -23,20 +22,17 @@ impl<T> Default for Table<T> {
 impl<T> Table<T> {
     pub fn remove(&mut self, key: u128) -> Option<T> {
         if let Some(index) = self.map.remove(&key) {
-            if index < self.data.len() {
-                let value = self.data.swap_remove(index);
-                if index != self.data.len() {
-                    // Update the map if the removed element was not the last one
-                    if let Some(last_key) = self
-                        .map
-                        .iter_mut()
-                        .find(|&(_, &mut idx)| idx == self.data.len())
-                    {
-                        *last_key.1 = index;
-                    }
-                }
-                return Some(value);
+            // Swap-remove from both data and reverse
+            let value = self.data.swap_remove(index);
+            // key that got moved to index
+            let pre_move_index = self.reverse[self.reverse.len() - 1];
+            self.reverse.swap_remove(index);
+
+            // if what we removed was not the last element, update the index
+            if index < self.reverse.len() {
+                *self.map.get_mut(&pre_move_index).unwrap() = index;
             }
+            return Some(value);
         }
         None
     }
@@ -76,6 +72,7 @@ impl<T> Table<T> {
     pub fn add_with_key(&mut self, key: u128, value: T) {
         self.remove(key);
         self.data.push(value);
+        self.reverse.push(key);
         let index = self.data.len() - 1;
         self.map.insert(key, index);
     }

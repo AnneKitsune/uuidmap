@@ -1,5 +1,5 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use arrayhashmap::Table;
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
 fn add_benchmark(c: &mut Criterion) {
     let mut table: Table<i32> = Table::default();
@@ -8,7 +8,9 @@ fn add_benchmark(c: &mut Criterion) {
 
 fn add_with_key_benchmark(c: &mut Criterion) {
     let mut table: Table<i32> = Table::default();
-    c.bench_function("add_with_key", |b| b.iter(|| table.add_with_key(black_box(123), black_box(42))));
+    c.bench_function("add_with_key", |b| {
+        b.iter(|| table.add_with_key(black_box(123), black_box(42)))
+    });
 }
 
 fn remove_benchmark(c: &mut Criterion) {
@@ -41,12 +43,16 @@ fn join_benchmark(c: &mut Criterion) {
             b_table.add(B(1.0, a_key));
         }
     });
-    c.bench_function("join", |b| b.iter(|| {
-        b_table.values().for_each(|b_val| {
-            // unsafe: the key in B pointing to A must exist and be valid. saves 26%
-            unsafe { a_table.get_mut(b_val.1).unwrap_unchecked().0 += b_val.0; }
-        });
-    }));
+    c.bench_function("join", |b| {
+        b.iter(|| {
+            b_table.values().for_each(|b_val| {
+                // unsafe: the key in B pointing to A must exist and be valid. saves 26%
+                unsafe {
+                    a_table.get_mut(b_val.1).unwrap_unchecked().0 += b_val.0;
+                }
+            });
+        })
+    });
 }
 
 struct Entity(pub u128, pub Option<u128>);
@@ -65,14 +71,19 @@ fn ecs_like_benchmark(c: &mut Criterion) {
         };
         entity_table.add(Entity(c_key, d_key));
     });
-    c.bench_function("ecs_like", |b| b.iter(|| {
-        entity_table.values().for_each(|entity| {
-            if let Some(d_key) = entity.1 {
-                // unsafe: the key in Entity pointing to C and D must exist and be valid. saves 33%.
-                unsafe { c_table.get_mut(entity.0).unwrap_unchecked().0 += d_table.get(d_key).unwrap_unchecked().0; }
-            }
-        });
-    }));
+    c.bench_function("ecs_like", |b| {
+        b.iter(|| {
+            entity_table.values().for_each(|entity| {
+                if let Some(d_key) = entity.1 {
+                    // unsafe: the key in Entity pointing to C and D must exist and be valid. saves 33%.
+                    unsafe {
+                        c_table.get_mut(entity.0).unwrap_unchecked().0 +=
+                            d_table.get(d_key).unwrap_unchecked().0;
+                    }
+                }
+            });
+        })
+    });
 }
 
 criterion_group!(
