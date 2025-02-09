@@ -1,6 +1,6 @@
 # UuidMap
 
-This is an ArrayHashMap (otherwise called "Dense Storage").
+This is an ArrayHashMap (otherwise called "Dense Storage" or an enhanced "VecMap").
 It is essentially a relational database table.
 This one is specialized to use a random u128 as the key, rather than a sequential index.
 
