@@ -2,6 +2,7 @@ use fxhash::FxHashMap;
 use rand::Rng;
 
 // TODO add with_capacity for cases where we know how many elements we will have
+// TODO evaluate performance degradation due to cpu cache misses when doing join_benchmark with random insertion order.
 
 #[derive(Debug, Clone)]
 pub struct Table<T> {
