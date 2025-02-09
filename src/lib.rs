@@ -1,6 +1,8 @@
 use fxhash::FxHashMap;
 use rand::Rng;
 
+// TODO add with_capacity for cases where we know how many elements we will have
+
 #[derive(Debug, Clone)]
 pub struct Table<T> {
     // Contains a map of uuid to data vector index.
