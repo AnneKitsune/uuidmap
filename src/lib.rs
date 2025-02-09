@@ -51,7 +51,8 @@ impl<T> Table<T> {
 
     pub fn get(&self, key: u128) -> Option<&T> {
         if let Some(index) = self.map.get(&key) {
-            self.data.get(*index)
+            // unsafe: index must be valid. improves performance by 4-7% on my machine.
+            Some(unsafe { self.data.get_unchecked(*index) })
         } else {
             None
         }
@@ -59,7 +60,8 @@ impl<T> Table<T> {
 
     pub fn get_mut(&mut self, key: u128) -> Option<&mut T> {
         if let Some(index) = self.map.get(&key) {
-            self.data.get_mut(*index)
+            // unsafe: index must be valid. improves performance by 4-7% on my machine.
+            Some(unsafe { self.data.get_unchecked_mut(*index) })
         } else {
             None
         }
