@@ -1,5 +1,5 @@
-use uuidmap::Table;
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use uuidmap::Table;
 
 fn add_benchmark(c: &mut Criterion) {
     let mut table: Table<i32> = Table::default();

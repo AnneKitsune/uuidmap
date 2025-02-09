@@ -14,15 +14,20 @@ pub struct Table<T> {
 
 impl<T> Default for Table<T> {
     fn default() -> Self {
-        Self {
-            map: FxHashMap::<u128, usize>::default(),
-            data: vec![],
-            reverse: vec![],
-        }
+        Self::with_capacity(32)
     }
 }
 
 impl<T> Table<T> {
+    /// Creates a Table with a specific initial capacity.
+    pub fn with_capacity(capacity: usize) -> Self {
+        Self {
+            map: FxHashMap::<u128, usize>::with_capacity_and_hasher(capacity, Default::default()),
+            data: Vec::<T>::with_capacity(capacity),
+            reverse: Vec::<u128>::with_capacity(capacity),
+        }
+    }
+
     /// Remove an element using it's key.
     pub fn remove(&mut self, key: u128) -> Option<T> {
         if let Some(index) = self.map.remove(&key) {
