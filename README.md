@@ -7,6 +7,7 @@ This one is specialized to use a random u128 as the key, rather than a sequentia
 The performances are on-par with modern bitset-based entity-component-systems, while lagging behind archetypal ECS (~3x slower than [legion](https://github.com/amethyst/legion)).
 
 However, it has the advantage that it does not constraint someone to follow the ECS pattern of entities and components, with anything else thrown into resources.
+
 Rather, you can use this as a realtime relational database, suitable for game development and game engines.
 This means you can store assets, entities, components, resources and events all in the same type `Table<T>`. Having it this way cleans up the code, allows for predictable performance and, most importantly, allows for unified tooling. (In-game `Table<ItemDefinition>` editor, anyone?)
 
