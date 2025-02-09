@@ -43,7 +43,8 @@ fn join_benchmark(c: &mut Criterion) {
     });
     c.bench_function("join", |b| b.iter(|| {
         b_table.values().for_each(|b_val| {
-            a_table.get_mut(b_val.1).unwrap().0 += b_val.0;
+            // unsafe: the key in B pointing to A must exist and be valid. saves 26%
+            unsafe { a_table.get_mut(b_val.1).unwrap_unchecked().0 += b_val.0; }
         });
     }));
 }
@@ -67,7 +68,8 @@ fn ecs_like_benchmark(c: &mut Criterion) {
     c.bench_function("ecs_like", |b| b.iter(|| {
         entity_table.values().for_each(|entity| {
             if let Some(d_key) = entity.1 {
-                c_table.get_mut(entity.0).unwrap().0 += d_table.get(d_key).unwrap().0;
+                // unsafe: the key in Entity pointing to C and D must exist and be valid. saves 33%.
+                unsafe { c_table.get_mut(entity.0).unwrap_unchecked().0 += d_table.get(d_key).unwrap_unchecked().0; }
             }
         });
     }));
