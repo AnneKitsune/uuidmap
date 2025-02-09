@@ -20,6 +20,7 @@ impl<T> Default for Table<T> {
 }
 
 impl<T> Table<T> {
+    /// Remove an element using it's key.
     pub fn remove(&mut self, key: u128) -> Option<T> {
         if let Some(index) = self.map.remove(&key) {
             // Swap-remove from both data and reverse
@@ -37,38 +38,59 @@ impl<T> Table<T> {
         None
     }
 
+    /// Get the number of elements stored.
     pub fn count(&self) -> usize {
         self.data.len()
     }
 
+    /// Empty out everything.
+    pub fn clear(&mut self) {
+        self.data.clear();
+        self.reverse.clear();
+        self.map.clear();
+    }
+
+    /// Get an iterator over the contained values.
     pub fn values(&self) -> impl Iterator<Item = &T> {
         self.data.iter()
     }
 
+    /// Return an iterator over keys.
+    pub fn keys(&self) -> std::collections::hash_map::Keys<u128, usize> {
+        self.map.keys()
+    }
+
+    /// Get a value by key.
     pub fn get(&self, key: u128) -> Option<&T> {
         if let Some(index) = self.map.get(&key) {
-            // unsafe: index must be valid. improves performance by 4-7% on my machine.
+            // unsafe: index is valid. improves performance by 4-7% on my machine.
             Some(unsafe { self.data.get_unchecked(*index) })
         } else {
             None
         }
     }
 
+    /// Get a value by key.
     pub fn get_mut(&mut self, key: u128) -> Option<&mut T> {
         if let Some(index) = self.map.get(&key) {
-            // unsafe: index must be valid. improves performance by 4-7% on my machine.
+            // unsafe: index is valid. improves performance by 4-7% on my machine.
             Some(unsafe { self.data.get_unchecked_mut(*index) })
         } else {
             None
         }
     }
 
+    /// Add a new value with random key.
+    /// This is what you want to use 95% of the time.
     pub fn add(&mut self, value: T) -> u128 {
         let key = rand::rng().random();
         self.add_with_key(key, value);
         key
     }
 
+    /// Add a new value with manual key. Usually used during deserialization.
+    /// Might be used for performance reasons when using a Table as a Map.
+    /// For example, a map KeyCode -> GameEvent.
     pub fn add_with_key(&mut self, key: u128, value: T) {
         self.remove(key);
         self.data.push(value);
