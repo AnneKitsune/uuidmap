@@ -23,16 +23,54 @@ fn get_benchmark(c: &mut Criterion) {
     c.bench_function("get", |b| b.iter(|| table.get(black_box(key))));
 }
 
-fn count_benchmark(c: &mut Criterion) {
-    let mut table: Table<i32> = Table::default();
-    c.bench_function("count", |b| b.iter(|| table.count()));
-}
-
 fn values_benchmark(c: &mut Criterion) {
     let mut table: Table<i32> = Table::default();
     table.add(42);
     table.add(24);
     c.bench_function("values", |b| b.iter(|| table.values().collect::<Vec<_>>()));
+}
+
+struct A(pub f32);
+struct B(pub f32, pub u128);
+fn join_benchmark(c: &mut Criterion) {
+    let mut a_table: Table<A> = Table::default();
+    let mut b_table: Table<B> = Table::default();
+    (0..10000).for_each(|i| {
+        let a_key = a_table.add(A(1.0));
+        if i % 2 == 0 {
+            b_table.add(B(1.0, a_key));
+        }
+    });
+    c.bench_function("join", |b| b.iter(|| {
+        b_table.values().for_each(|b_val| {
+            a_table.get_mut(b_val.1).unwrap().0 += b_val.0;
+        });
+    }));
+}
+
+struct Entity(pub u128, pub Option<u128>);
+struct C(pub f32);
+struct D(pub f32);
+fn ecs_like_benchmark(c: &mut Criterion) {
+    let mut entity_table: Table<Entity> = Table::default();
+    let mut c_table: Table<C> = Table::default();
+    let mut d_table: Table<D> = Table::default();
+    (0..10000).for_each(|i| {
+        let c_key = c_table.add(C(1.0));
+        let d_key = if i % 2 == 0 {
+            Some(d_table.add(D(1.0)))
+        } else {
+            None
+        };
+        entity_table.add(Entity(c_key, d_key));
+    });
+    c.bench_function("ecs_like", |b| b.iter(|| {
+        entity_table.values().for_each(|entity| {
+            if let Some(d_key) = entity.1 {
+                c_table.get_mut(entity.0).unwrap().0 += d_table.get(d_key).unwrap().0;
+            }
+        });
+    }));
 }
 
 criterion_group!(
@@ -41,8 +79,9 @@ criterion_group!(
     add_with_key_benchmark,
     remove_benchmark,
     get_benchmark,
-    count_benchmark,
-    values_benchmark
+    values_benchmark,
+    join_benchmark,
+    ecs_like_benchmark,
 );
 
 criterion_main!(benches);

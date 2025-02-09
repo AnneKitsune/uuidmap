@@ -5,6 +5,12 @@ edition = "2021"
 
 [dependencies]
 rand = "0.9"
+fxhash = "0.2"
 
 [dev-dependencies]
-criterion = "0.3"
+criterion = "0.5.1"
+
+[[bench]]
+name = "benches"
+harness = false
+

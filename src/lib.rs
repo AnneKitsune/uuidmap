@@ -1,11 +1,23 @@
 use rand::Rng;
 use std::collections::HashMap;
+use fxhash::FxHashMap;
 
-#[derive(Default, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct Table<T> {
     // Contains a map of uuid to data vector index.
-    map: HashMap<u128, usize>,
+    //map: HashMap<u128, usize>,
+    map: FxHashMap<u128, usize>,
     data: Vec<T>,
+}
+
+impl<T> Default for Table<T> {
+    fn default() -> Self {
+        Self {
+            //map: HashMap::<u128, usize>::default(),
+            map: FxHashMap::<u128, usize>::default(),
+            data: vec![],
+        }
+    }
 }
 
 impl<T> Table<T> {
@@ -45,18 +57,25 @@ impl<T> Table<T> {
         }
     }
 
+    pub fn get_mut(&mut self, key: u128) -> Option<&mut T> {
+        if let Some(index) = self.map.get(&key) {
+            self.data.get_mut(*index)
+        } else {
+            None
+        }
+    }
+
     pub fn add(&mut self, value: T) -> u128 {
-        let key = rand::rng().random(); // Use thread_rng to generate a random key
+        let key = rand::rng().random();
         self.add_with_key(key, value);
         key
     }
 
     pub fn add_with_key(&mut self, key: u128, value: T) {
-        if !self.map.contains_key(&key) {
-            self.data.push(value);
-            let index = self.data.len() - 1;
-            self.map.insert(key, index);
-        }
+        self.remove(key);
+        self.data.push(value);
+        let index = self.data.len() - 1;
+        self.map.insert(key, index);
     }
 }
 
