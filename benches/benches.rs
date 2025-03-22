@@ -34,8 +34,9 @@ fn values_benchmark(c: &mut Criterion) {
 
 fn values_mut_benchmark(c: &mut Criterion) {
     let mut table: Table<i32> = Table::default();
-    table.add(42);
-    table.add(24);
+    for i in 0..10000 {
+        table.add(i);
+    }
     c.bench_function("values_mut", |b| {
         b.iter(|| {
             for value in table.values_mut() {

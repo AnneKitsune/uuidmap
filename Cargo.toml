@@ -1,6 +1,6 @@
 [package]
 name = "uuidmap"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2021"
 description = "An ArrayHashMap implementation specialized for using a uuid (u128) as the key."
 license = "AGPL-3.0-or-later"
@@ -17,4 +17,3 @@ criterion = "0.5.1"
 [[bench]]
 name = "benches"
 harness = false
-
