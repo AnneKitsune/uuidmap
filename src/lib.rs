@@ -36,6 +36,8 @@ use rand::Rng;
 // TODO evaluate performance degradation due to cpu cache misses when doing join_benchmark with random insertion order.
 // TODO reword readme.
 // TODO bump to 1.0.0 once I'm done with the other todos + have used this in other projects.
+// TODO add documentation link
+// TODO cargo lock
 
 /// See crate level documentation.
 #[derive(Debug, Clone)]
@@ -74,22 +76,16 @@ impl<T> Table<T> {
 
     /// Get a value by key.
     pub fn get(&self, key: u128) -> Option<&T> {
-        if let Some(index) = self.map.get(&key) {
-            // unsafe: index is valid. improves performance by 4-7% on my machine.
-            Some(unsafe { self.data.get_unchecked(*index) })
-        } else {
-            None
-        }
+        self.map
+            .get(&key)
+            .map(|index| unsafe { self.data.get_unchecked(*index) })
     }
 
     /// Get a value by key.
     pub fn get_mut(&mut self, key: u128) -> Option<&mut T> {
-        if let Some(index) = self.map.get(&key) {
-            // unsafe: index is valid. improves performance by 4-7% on my machine.
-            Some(unsafe { self.data.get_unchecked_mut(*index) })
-        } else {
-            None
-        }
+        self.map
+            .get(&key)
+            .map(|index| unsafe { self.data.get_unchecked_mut(*index) })
     }
 
     /// Remove an element using it's key.
@@ -113,6 +109,11 @@ impl<T> Table<T> {
     /// Get an iterator over the contained values.
     pub fn values(&self) -> impl Iterator<Item = &T> {
         self.data.iter()
+    }
+
+    /// Get an iterator over the contained values mutably.
+    pub fn values_mut(&mut self) -> impl Iterator<Item = &mut T> {
+        self.data.iter_mut()
     }
 
     /// Return an iterator over keys.
@@ -188,6 +189,20 @@ mod tests {
         table.add(24);
         let values: Vec<_> = table.values().collect();
         assert_eq!(values, vec![&42, &24]);
+    }
+
+    #[test]
+    fn test_values_mut() {
+        let mut table: Table<i32> = Table::default(); // Specify type for empty_table
+        let key1 = table.add(42);
+        let key2 = table.add(24);
+
+        for value in table.values_mut() {
+            *value *= 2;
+        }
+
+        assert_eq!(table.get(key1), Some(&84));
+        assert_eq!(table.get(key2), Some(&48));
     }
 
     #[test]

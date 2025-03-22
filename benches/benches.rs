@@ -32,6 +32,20 @@ fn values_benchmark(c: &mut Criterion) {
     c.bench_function("values", |b| b.iter(|| table.values().collect::<Vec<_>>()));
 }
 
+fn values_mut_benchmark(c: &mut Criterion) {
+    let mut table: Table<i32> = Table::default();
+    for i in 0..10000 {
+        table.add(i);
+    }
+    c.bench_function("values_mut", |b| {
+        b.iter(|| {
+            for value in table.values_mut() {
+                *value += 1;
+            }
+        })
+    });
+}
+
 struct A(pub f32);
 struct B(pub f32, pub u128);
 fn join_benchmark(c: &mut Criterion) {
@@ -93,6 +107,7 @@ criterion_group!(
     remove_benchmark,
     get_benchmark,
     values_benchmark,
+    values_mut_benchmark,
     join_benchmark,
     ecs_like_benchmark,
 );
