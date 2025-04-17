@@ -121,6 +121,16 @@ impl<T> Table<T> {
         self.map.keys()
     }
 
+    /// Return an iterator over key-value pairs.
+    pub fn iter(&self) -> impl Iterator<Item = (u128, &T)> {
+        self.reverse.iter().copied().zip(self.data.iter())
+    }
+
+    /// Return an iterator over mutable key-value pairs.
+    pub fn iter_mut(&mut self) -> impl Iterator<Item = (u128, &mut T)> {
+        self.reverse.iter().copied().zip(self.data.iter_mut())
+    }
+
     /// Creates a Table with a specific initial capacity.
     pub fn with_capacity(capacity: usize) -> Self {
         Self {
@@ -231,5 +241,66 @@ mod tests {
         // Counting empty table
         let empty_table: Table<i32> = Table::default(); // Specify type for empty_table
         assert_eq!(empty_table.count(), 0);
+    }
+
+    #[test]
+    fn test_iter_empty() {
+        let table: Table<i32> = Table::default();
+        assert_eq!(table.iter().collect::<Vec<_>>(), Vec::<(u128, &i32)>::new());
+    }
+
+    #[test]
+    fn test_iter() {
+        let mut table: Table<i32> = Table::default();
+        let key1 = table.add(10);
+        let key2 = table.add(20);
+        let pairs: Vec<_> = table.iter().collect();
+        assert_eq!(pairs, vec![(key1, &10), (key2, &20)]);
+    }
+
+    #[test]
+    fn test_iter_after_remove() {
+        let mut table: Table<i32> = Table::default();
+        let key1 = table.add(1);
+        let key2 = table.add(2);
+        assert_eq!(table.remove(key1), Some(1));
+        let key3 = table.add(3);
+        let pairs: Vec<_> = table.iter().collect();
+        assert_eq!(pairs, vec![(key2, &2), (key3, &3)]);
+    }
+
+    #[test]
+    fn test_iter_mut_empty() {
+        let mut table: Table<i32> = Table::default();
+        assert_eq!(
+            table.iter_mut().collect::<Vec<_>>(),
+            Vec::<(u128, &mut i32)>::new()
+        );
+    }
+
+    #[test]
+    fn test_iter_mut() {
+        let mut table: Table<i32> = Table::default();
+        let key1 = table.add(5);
+        let key2 = table.add(6);
+        for (_, v) in table.iter_mut() {
+            *v *= 3;
+        }
+        assert_eq!(table.get(key1), Some(&15));
+        assert_eq!(table.get(key2), Some(&18));
+    }
+
+    #[test]
+    fn test_iter_mut_after_remove() {
+        let mut table: Table<i32> = Table::default();
+        let key1 = table.add(7);
+        let key2 = table.add(8);
+        table.remove(key1);
+        let key3 = table.add(9);
+        for (_, v) in table.iter_mut() {
+            *v += 1;
+        }
+        assert_eq!(table.get(key2), Some(&9));
+        assert_eq!(table.get(key3), Some(&10));
     }
 }
